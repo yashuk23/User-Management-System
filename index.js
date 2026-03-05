@@ -1,60 +1,68 @@
-const express=require("express");
-const path=require("path");
-const app=express();
-const port=8080;
-const userModel=require("./models/user");
-const { log } = require("console");
+const express = require("express");
+const path = require("path");
+const mongoose = require("mongoose");
 
-app.set('view engine','ejs');
+const app = express();
+const port = process.env.PORT || 8080;
+
+const userModel = require("./models/user");
+
+mongoose.connect("mongodb+srv://yashuk23:%40Cognizant27@usermanagement.iiq96s2.mongodb.net/UserManagement")
+.then(() => {
+    console.log("MongoDB Connected");
+})
+.catch((err) => {
+    console.log("Connection Error:", err);
+});
+
+app.set("view engine", "ejs");
+
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
 
-app.listen(port,()=>
-{
+app.listen(port, () => {
     console.log("Server Started");
 });
 
-app.get("/",(req,res)=>
-{
+app.get("/", (req, res) => {
     res.render("index");
-})
+});
 
-app.post("/create",async (req,res)=>
-{
-    let {name,email,image}=req.body;
-    let createdUser= await userModel.create({
-        name:name,
-        email:email,
-        image:image
-    })
+app.post("/create", async (req, res) => {
+    let { name, email, image } = req.body;
 
-    res.redirect("/read")
-})
+    await userModel.create({
+        name,
+        email,
+        image
+    });
 
-app.get("/read",async (req,res)=>
-{
-    let users=await userModel.find();
-    res.render("read",{users})
-})
-
-app.get("/delete/:userid",async (req,res)=>
-{
-    let userId=req.params.userid;
-    let deleteUser=await userModel.findOneAndDelete({_id:userId});
-    console.log(deleteUser);
     res.redirect("/read");
-})
+});
 
-app.get("/edit/:userid",async (req,res)=>
-{
-    let editid=await userModel.findOne({_id:req.params.userid});
-    res.render("edit",{editid});
-})
+app.get("/read", async (req, res) => {
+    let users = await userModel.find();
+    res.render("read", { users });
+});
 
-app.post("/edit/:userid",async (req,res)=>
-{
-    let {name,email,image}=req.body;
-    let editedUser=await userModel.findOneAndUpdate({_id:req.params.userid},{name:name,email:email,image:image});
+app.get("/delete/:userid", async (req, res) => {
+    await userModel.findOneAndDelete({ _id: req.params.userid });
+    res.redirect("/read");
+});
+
+app.get("/edit/:userid", async (req, res) => {
+    let editid = await userModel.findOne({ _id: req.params.userid });
+    res.render("edit", { editid });
+});
+
+app.post("/edit/:userid", async (req, res) => {
+    let { name, email, image } = req.body;
+
+    await userModel.findOneAndUpdate(
+        { _id: req.params.userid },
+        { name, email, image }
+    );
+
     res.redirect("/read");
 });
