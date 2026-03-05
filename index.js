@@ -7,7 +7,7 @@ const port = process.env.PORT || 8080;
 
 const userModel = require("./models/user");
 
-mongoose.connect("mongodb+srv://yashuk23:%40Cognizant27@usermanagement.iiq96s2.mongodb.net/UserManagement")
+mongoose.connect("mongodb+srv://yashuk23:yashuk23@usermanagement.iiq96s2.mongodb.net/UserManagement")
 .then(() => {
     console.log("MongoDB Connected");
 })
