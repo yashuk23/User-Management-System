@@ -1,11 +1,14 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+require("dotenv").config();
 
 const app = express();
 const port = process.env.PORT || 8080;
 
 const userModel = require("./models/user");
+//mongoose.connect(process.env.MONGO_URI)
+//mongoose.connect("mongodb://127.0.0.1:27017/authtestapp")
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log("MongoDB Connected");
