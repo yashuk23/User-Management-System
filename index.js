@@ -52,7 +52,7 @@ function isLoggedIn(req, res, next) {
 
 
 app.get("/", (req, res) => {
-    res.redirect("/login");
+    res.redirect("/index");
 });
 
 
