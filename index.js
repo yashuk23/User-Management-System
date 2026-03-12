@@ -11,11 +11,9 @@ const port = process.env.PORT || 8080;
 
 const userModel = require("./models/user");
 
-
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch((err) => console.log("Connection Error:", err));
-
 
 app.set("view engine", "ejs");
 
@@ -24,7 +22,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
-
 app.listen(port, () => {
     console.log(`Server Started on port ${port}`);
 });
@@ -32,15 +29,16 @@ app.listen(port, () => {
 
 function isLoggedIn(req, res, next) {
 
-    if (!req.cookies.token) {
+    const token = req.cookies.token;
+
+    if (!token) {
         return res.redirect("/login");
     }
 
     try {
 
-        let data = jwt.verify(req.cookies.token, "secretkey");
+        const data = jwt.verify(token, process.env.JWT_SECRET);
         req.user = data;
-
         next();
 
     } catch (err) {
@@ -48,6 +46,7 @@ function isLoggedIn(req, res, next) {
         res.redirect("/login");
 
     }
+
 }
 
 
@@ -59,6 +58,7 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
     res.render("register");
 });
+
 
 app.post("/register", async (req, res) => {
 
@@ -98,6 +98,7 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
+
 app.post("/login", async (req, res) => {
 
     try {
@@ -116,10 +117,10 @@ app.post("/login", async (req, res) => {
 
             let token = jwt.sign(
                 { id: user._id, email: user.email },
-                "secretkey"
+                process.env.JWT_SECRET
             );
 
-            res.cookie("token", token);
+            res.cookie("token", token, { httpOnly: true });
 
             res.redirect("/index");
 
@@ -138,10 +139,10 @@ app.post("/login", async (req, res) => {
 
 });
 
+
 app.get("/logout", (req, res) => {
 
     res.clearCookie("token");
-
     res.redirect("/login");
 
 });
@@ -152,6 +153,7 @@ app.get("/index", isLoggedIn, (req, res) => {
     res.render("index");
 
 });
+
 
 app.get("/read", isLoggedIn, async (req, res) => {
 
@@ -205,6 +207,7 @@ app.get("/delete/:userid", isLoggedIn, async (req, res) => {
     res.redirect("/read");
 
 });
+
 
 app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 
