@@ -26,6 +26,7 @@ app.listen(port, () => {
     console.log(`Server Started on port ${port}`);
 });
 
+
 function isLoggedIn(req, res, next) {
 
     if (!req.cookies.token) {
@@ -33,25 +34,30 @@ function isLoggedIn(req, res, next) {
     }
 
     try {
+
         let data = jwt.verify(req.cookies.token, "secretkey");
+
         req.user = data;
+
         next();
-    }
-    catch (err) {
+
+    } catch (err) {
+
         res.redirect("/login");
+
     }
 }
+
 
 app.get("/", (req, res) => {
     res.redirect("/login");
 });
 
 
-//register
-
 app.get("/register", (req, res) => {
     res.render("register");
 });
+
 
 app.post("/register", async (req, res) => {
 
@@ -78,18 +84,19 @@ app.post("/register", async (req, res) => {
         res.redirect("/login");
 
     } catch (error) {
+
         console.log(error);
         res.status(500).send("Server Error");
+
     }
 
 });
 
 
-//login
-
 app.get("/login", (req, res) => {
     res.render("login");
 });
+
 
 app.post("/login", async (req, res) => {
 
@@ -99,7 +106,7 @@ app.post("/login", async (req, res) => {
 
         let user = await userModel.findOne({ email });
 
-        if (!user || !user.password) {
+        if (!user) {
             return res.send("Invalid Email or Password");
         }
 
@@ -108,46 +115,48 @@ app.post("/login", async (req, res) => {
         if (result) {
 
             let token = jwt.sign(
-                { email: user.email, id: user._id },
+                { id: user._id, email: user.email },
                 "secretkey"
             );
 
             res.cookie("token", token);
 
             res.redirect("/read");
-        }
-        else {
+
+        } else {
+
             res.send("Invalid Email or Password");
+
         }
 
     } catch (error) {
+
         console.log(error);
         res.status(500).send("Server Error");
+
     }
 
 });
 
 
-//logout
-
 app.get("/logout", (req, res) => {
+
     res.clearCookie("token");
+
     res.redirect("/login");
+
 });
-
-
-//dashboard
 
 app.get("/read", isLoggedIn, async (req, res) => {
 
-    let users = await userModel.find();
+    let users = await userModel.find({
+        createdBy: req.user.id
+    });
 
     res.render("read", { users });
 
 });
 
-
-//create user
 
 app.post("/create", isLoggedIn, async (req, res) => {
 
@@ -159,52 +168,60 @@ app.post("/create", isLoggedIn, async (req, res) => {
         let hash = await bcrypt.hash(password, salt);
 
         await userModel.create({
+
             name,
             email,
             image,
-            password: hash
+            password: hash,
+            createdBy: req.user.id
+
         });
 
         res.redirect("/read");
 
     } catch (error) {
+
         console.log(error);
         res.status(500).send("Server Error");
+
     }
 
 });
 
 
-//user delete
-
 app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 
-    await userModel.findByIdAndDelete(req.params.userid);
+    await userModel.findOneAndDelete({
+        _id: req.params.userid,
+        createdBy: req.user.id
+    });
 
     res.redirect("/read");
 
 });
 
 
-//user edit
-
 app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 
-    let editid = await userModel.findById(req.params.userid);
+    let editid = await userModel.findOne({
+        _id: req.params.userid,
+        createdBy: req.user.id
+    });
 
     res.render("edit", { editid });
 
 });
 
 
-//user update 
-
 app.post("/edit/:userid", isLoggedIn, async (req, res) => {
 
     let { name, email, image } = req.body;
 
-    await userModel.findByIdAndUpdate(
-        req.params.userid,
+    await userModel.findOneAndUpdate(
+        {
+            _id: req.params.userid,
+            createdBy: req.user.id
+        },
         { name, email, image }
     );
 
