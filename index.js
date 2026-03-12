@@ -12,8 +12,8 @@ const port = process.env.PORT || 8080;
 const userModel = require("./models/user");
 
 mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log("MongoDB Connected"))
-    .catch((err) => console.log("Connection Error:", err));
+.then(() => console.log("MongoDB Connected"))
+.catch((err) => console.log("Connection Error:", err));
 
 app.set("view engine", "ejs");
 
@@ -23,9 +23,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
 
 app.listen(port, () => {
-    console.log("Server Started");
+    console.log(`Server Started on port ${port}`);
 });
-
 
 function isLoggedIn(req, res, next) {
 
@@ -43,8 +42,6 @@ function isLoggedIn(req, res, next) {
     }
 }
 
-
-
 app.get("/", (req, res) => {
     res.redirect("/login");
 });
@@ -56,22 +53,35 @@ app.get("/register", (req, res) => {
     res.render("register");
 });
 
-
 app.post("/register", async (req, res) => {
 
-    let { name, email, password, image } = req.body;
+    try {
 
-    let salt = await bcrypt.genSalt(10);
-    let hash = await bcrypt.hash(password, salt);
+        let { name, email, password, image } = req.body;
 
-    await userModel.create({
-        name,
-        email,
-        password: hash,
-        image
-    });
+        let existingUser = await userModel.findOne({ email });
 
-    res.redirect("/login");
+        if (existingUser) {
+            return res.send("User already exists");
+        }
+
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(password, salt);
+
+        await userModel.create({
+            name,
+            email,
+            password: hash,
+            image
+        });
+
+        res.redirect("/login");
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Server Error");
+    }
+
 });
 
 
@@ -81,30 +91,38 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-
 app.post("/login", async (req, res) => {
 
-    let user = await userModel.findOne({ email: req.body.email });
+    try {
 
-    if (!user) {
-        return res.send("Invalid Email or Password");
-    }
+        let { email, password } = req.body;
 
-    let result = await bcrypt.compare(req.body.password, user.password);
+        let user = await userModel.findOne({ email });
 
-    if (result) {
+        if (!user || !user.password) {
+            return res.send("Invalid Email or Password");
+        }
 
-        let token = jwt.sign(
-            { email: user.email, id: user._id },
-            "secretkey"
-        );
+        let result = await bcrypt.compare(password, user.password);
 
-        res.cookie("token", token);
+        if (result) {
 
-        res.redirect("/read");
-    }
-    else {
-        res.send("Invalid Email or Password");
+            let token = jwt.sign(
+                { email: user.email, id: user._id },
+                "secretkey"
+            );
+
+            res.cookie("token", token);
+
+            res.redirect("/read");
+        }
+        else {
+            res.send("Invalid Email or Password");
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Server Error");
     }
 
 });
@@ -113,9 +131,10 @@ app.post("/login", async (req, res) => {
 //logout
 
 app.get("/logout", (req, res) => {
-    res.cookie("token", "");
+    res.clearCookie("token");
     res.redirect("/login");
 });
+
 
 //dashboard
 
@@ -132,15 +151,26 @@ app.get("/read", isLoggedIn, async (req, res) => {
 
 app.post("/create", isLoggedIn, async (req, res) => {
 
-    let { name, email, image } = req.body;
+    try {
 
-    await userModel.create({
-        name,
-        email,
-        image
-    });
+        let { name, email, image, password } = req.body;
 
-    res.redirect("/read");
+        let salt = await bcrypt.genSalt(10);
+        let hash = await bcrypt.hash(password, salt);
+
+        await userModel.create({
+            name,
+            email,
+            image,
+            password: hash
+        });
+
+        res.redirect("/read");
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Server Error");
+    }
 
 });
 
@@ -149,7 +179,7 @@ app.post("/create", isLoggedIn, async (req, res) => {
 
 app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 
-    await userModel.findOneAndDelete({ _id: req.params.userid });
+    await userModel.findByIdAndDelete(req.params.userid);
 
     res.redirect("/read");
 
@@ -160,7 +190,7 @@ app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 
 app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 
-    let editid = await userModel.findOne({ _id: req.params.userid });
+    let editid = await userModel.findById(req.params.userid);
 
     res.render("edit", { editid });
 
@@ -173,8 +203,8 @@ app.post("/edit/:userid", isLoggedIn, async (req, res) => {
 
     let { name, email, image } = req.body;
 
-    await userModel.findOneAndUpdate(
-        { _id: req.params.userid },
+    await userModel.findByIdAndUpdate(
+        req.params.userid,
         { name, email, image }
     );
 
