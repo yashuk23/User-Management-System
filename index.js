@@ -11,9 +11,11 @@ const port = process.env.PORT || 8080;
 
 const userModel = require("./models/user");
 
+
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch((err) => console.log("Connection Error:", err));
+
 
 app.set("view engine", "ejs");
 
@@ -21,6 +23,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cookieParser());
+
 
 app.listen(port, () => {
     console.log(`Server Started on port ${port}`);
@@ -36,7 +39,6 @@ function isLoggedIn(req, res, next) {
     try {
 
         let data = jwt.verify(req.cookies.token, "secretkey");
-
         req.user = data;
 
         next();
@@ -57,7 +59,6 @@ app.get("/", (req, res) => {
 app.get("/register", (req, res) => {
     res.render("register");
 });
-
 
 app.post("/register", async (req, res) => {
 
@@ -97,7 +98,6 @@ app.get("/login", (req, res) => {
     res.render("login");
 });
 
-
 app.post("/login", async (req, res) => {
 
     try {
@@ -121,7 +121,7 @@ app.post("/login", async (req, res) => {
 
             res.cookie("token", token);
 
-            res.redirect("/read");
+            res.redirect("/index");
 
         } else {
 
@@ -138,12 +138,18 @@ app.post("/login", async (req, res) => {
 
 });
 
-
 app.get("/logout", (req, res) => {
 
     res.clearCookie("token");
 
     res.redirect("/login");
+
+});
+
+
+app.get("/index", isLoggedIn, (req, res) => {
+
+    res.render("index");
 
 });
 
@@ -199,7 +205,6 @@ app.get("/delete/:userid", isLoggedIn, async (req, res) => {
     res.redirect("/read");
 
 });
-
 
 app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 
