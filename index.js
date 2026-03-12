@@ -165,24 +165,17 @@ app.get("/read", isLoggedIn, async (req, res) => {
 
 });
 
-
 app.post("/create", isLoggedIn, async (req, res) => {
 
     try {
 
-        let { name, email, image, password } = req.body;
-
-        let salt = await bcrypt.genSalt(10);
-        let hash = await bcrypt.hash(password, salt);
+        let { name, email, image } = req.body;
 
         await userModel.create({
-
             name,
             email,
             image,
-            password: hash,
             createdBy: req.user.id
-
         });
 
         res.redirect("/read");
@@ -195,7 +188,6 @@ app.post("/create", isLoggedIn, async (req, res) => {
     }
 
 });
-
 
 app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 
