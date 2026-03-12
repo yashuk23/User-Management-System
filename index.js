@@ -27,6 +27,7 @@ app.listen(port, () => {
 });
 
 
+
 function isLoggedIn(req, res, next) {
 
     const token = req.cookies.token;
@@ -43,11 +44,12 @@ function isLoggedIn(req, res, next) {
 
     } catch (err) {
 
-        res.redirect("/login");
+        return res.redirect("/login");
 
     }
 
 }
+
 
 
 app.get("/", (req, res) => {
@@ -55,31 +57,32 @@ app.get("/", (req, res) => {
 });
 
 
+
 app.get("/register", (req, res) => {
     res.render("register");
 });
+
 
 
 app.post("/register", async (req, res) => {
 
     try {
 
-        let { name, email, password, image } = req.body;
+        const { name, email, password } = req.body;
 
-        let existingUser = await userModel.findOne({ email });
+        const existingUser = await userModel.findOne({ email });
 
         if (existingUser) {
             return res.send("User already exists");
         }
 
-        let salt = await bcrypt.genSalt(10);
-        let hash = await bcrypt.hash(password, salt);
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(password, salt);
 
         await userModel.create({
             name,
             email,
-            password: hash,
-            image
+            password: hash
         });
 
         res.redirect("/login");
@@ -94,41 +97,39 @@ app.post("/register", async (req, res) => {
 });
 
 
+
 app.get("/login", (req, res) => {
     res.render("login");
 });
+
 
 
 app.post("/login", async (req, res) => {
 
     try {
 
-        let { email, password } = req.body;
+        const { email, password } = req.body;
 
-        let user = await userModel.findOne({ email });
+        const user = await userModel.findOne({ email });
 
-        if (!user) {
+        if (!user || !user.password) {
             return res.send("Invalid Email or Password");
         }
 
-        let result = await bcrypt.compare(password, user.password);
+        const result = await bcrypt.compare(password, user.password);
 
-        if (result) {
-
-            let token = jwt.sign(
-                { id: user._id, email: user.email },
-                process.env.JWT_SECRET
-            );
-
-            res.cookie("token", token, { httpOnly: true });
-
-            res.redirect("/index");
-
-        } else {
-
-            res.send("Invalid Email or Password");
-
+        if (!result) {
+            return res.send("Invalid Email or Password");
         }
+
+        const token = jwt.sign(
+            { id: user._id, email: user.email },
+            process.env.JWT_SECRET
+        );
+
+        res.cookie("token", token, { httpOnly: true });
+
+        res.redirect("/index");
 
     } catch (error) {
 
@@ -140,12 +141,14 @@ app.post("/login", async (req, res) => {
 });
 
 
+
 app.get("/logout", (req, res) => {
 
     res.clearCookie("token");
     res.redirect("/login");
 
 });
+
 
 
 app.get("/index", isLoggedIn, (req, res) => {
@@ -155,9 +158,10 @@ app.get("/index", isLoggedIn, (req, res) => {
 });
 
 
+
 app.get("/read", isLoggedIn, async (req, res) => {
 
-    let users = await userModel.find({
+    const users = await userModel.find({
         createdBy: req.user.id
     });
 
@@ -165,11 +169,13 @@ app.get("/read", isLoggedIn, async (req, res) => {
 
 });
 
+
+
 app.post("/create", isLoggedIn, async (req, res) => {
 
     try {
 
-        let { name, email, image } = req.body;
+        const { name, email, image } = req.body;
 
         await userModel.create({
             name,
@@ -189,6 +195,8 @@ app.post("/create", isLoggedIn, async (req, res) => {
 
 });
 
+
+
 app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 
     await userModel.findOneAndDelete({
@@ -201,9 +209,10 @@ app.get("/delete/:userid", isLoggedIn, async (req, res) => {
 });
 
 
+
 app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 
-    let editid = await userModel.findOne({
+    const editid = await userModel.findOne({
         _id: req.params.userid,
         createdBy: req.user.id
     });
@@ -213,9 +222,10 @@ app.get("/edit/:userid", isLoggedIn, async (req, res) => {
 });
 
 
+
 app.post("/edit/:userid", isLoggedIn, async (req, res) => {
 
-    let { name, email, image } = req.body;
+    const { name, email, image } = req.body;
 
     await userModel.findOneAndUpdate(
         {
