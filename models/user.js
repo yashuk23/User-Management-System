@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
+
     name: {
         type: String,
         required: true
@@ -11,11 +12,18 @@ const userSchema = new mongoose.Schema({
         required: true
     },
 
-    image: String,
+    password: {
+        type: String,
+        required: true
+    },
+
+    image: {
+        type: String
+    },
 
     createdBy: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "AuthUser"
+        ref: "user"
     }
 
 }, { timestamps: true });
