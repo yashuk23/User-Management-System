@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -7,55 +6,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <style>
+        @media (max-width:480px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            h3 {
+                font-size: 16px;
+            }
+
+            button,
+            a {
+                font-size: 14px;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+
 </head>
 
 <body class="bg-gradient-to-br from-indigo-200 via-purple-200 to-pink-200 min-h-screen flex flex-col">
-    <nav
-        class="w-full bg-white/70 backdrop-blur-md border-b border-white/40 px-10 py-4 flex justify-between items-center shadow-md">
 
-        <h1 class="text-2xl font-bold text-indigo-700 tracking-wide">
+    <nav
+        class="w-full bg-white/70 backdrop-blur-md border-b border-white/40 px-4 sm:px-6 lg:px-10 py-4 flex flex-col sm:flex-row justify-between items-center gap-3 shadow-md">
+
+        <h1 class="text-xl sm:text-2xl font-bold text-indigo-700 tracking-wide">
             User Management
         </h1>
 
         <a href="/index"
-            class="px-5 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition shadow-md">
+            class="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition shadow-md">
             Back to Home
         </a>
 
     </nav>
 
-    <div class="max-w-7xl mx-auto px-6 py-12 w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full">
 
         <% if (users.length> 0) { %>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 sm:gap-8">
 
                 <% users.forEach(function(user){ %>
 
                     <div
-                        class="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl p-7 shadow-lg flex flex-col items-center text-center transition transform hover:-translate-y-1 hover:shadow-2xl">
+                        class="bg-white/70 backdrop-blur-lg border border-white/40 rounded-2xl p-6 sm:p-7 shadow-lg flex flex-col items-center text-center transition transform hover:-translate-y-1 hover:shadow-2xl">
 
-                        <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-indigo-300 mb-5">
+                        <div
+                            class="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-indigo-300 mb-4 sm:mb-5">
                             <img src="<%= user.image %>" class="w-full h-full object-cover">
                         </div>
 
-                        <h3 class="text-lg font-semibold text-gray-800">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800">
                             <%= user.name %>
                         </h3>
 
-                        <h5 class="text-sm text-gray-600 mb-6">
+                        <h5 class="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6">
                             <%= user.email %>
                         </h5>
 
-                        <div class="flex gap-3">
+                        <div class="flex flex-wrap justify-center gap-3">
 
                             <a href="/edit/<%= user._id %>"
-                                class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-md text-sm font-medium transition shadow">
+                                class="px-3 sm:px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white rounded-md text-xs sm:text-sm font-medium transition shadow">
                                 Edit
                             </a>
 
                             <a href="/delete/<%= user._id %>"
-                                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm font-medium transition shadow">
+                                class="px-3 sm:px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-xs sm:text-sm font-medium transition shadow">
                                 Delete
                             </a>
 
@@ -70,12 +90,13 @@
             <% } else { %>
 
                 <div class="flex items-center justify-center h-64">
-                    <h1 class="text-2xl text-gray-600 font-semibold">No Users Yet</h1>
+                    <h1 class="text-xl sm:text-2xl text-gray-600 font-semibold">No Users Yet</h1>
                 </div>
 
                 <% } %>
 
     </div>
+
 </body>
 
 </html>
