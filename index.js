@@ -252,8 +252,7 @@ const port = process.env.PORT || 8080;
 
 const userModel = require("./models/user");
 
-/* MongoDB Localhost Connection */
-mongoose.connect("mongodb://127.0.0.1:27017/usermanagement")
+mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log("MongoDB Error:", err));
 
