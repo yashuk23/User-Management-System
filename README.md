@@ -1,29 +1,51 @@
 # User Management System
 
-A simple **User Management System** built using **Node.js, Express.js, MongoDB, EJS, and Tailwind CSS**.
-This application allows users to perform **CRUD operations (Create, Read, Update, Delete)** through a clean and responsive web interface.
+A full-stack **User Management System** built using **Node.js, Express.js, MongoDB, EJS, and Tailwind CSS**.
+The application allows users to **register, login, and manage users securely with authentication and CRUD operations**.
 
 ---
 
 ## 🚀 Features
 
+* User Registration
+* User Login with Authentication
+* Password hashing using **bcrypt**
+* Secure authentication using **JWT**
+* Cookie-based session handling
 * Create new users
 * View all users
 * Edit user details
 * Delete users
-* Server-side rendering using EJS
-* Clean UI with Tailwind CSS
-* MongoDB database integration using Mongoose
+* Protected routes using middleware
+* Server-side rendering with **EJS**
+* Responsive UI using **Tailwind CSS**
+* MongoDB integration using **Mongoose**
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Node.js, Express.js
-* **Database:** MongoDB
-* **Template Engine:** EJS
-* **Styling:** Tailwind CSS
-* **ODM:** Mongoose
+### Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT (jsonwebtoken)
+* bcrypt
+* cookie-parser
+* dotenv
+
+### Frontend
+
+* EJS Template Engine
+* Tailwind CSS
+
+### Deployment
+
+* MongoDB Atlas
+* Render
+* GitHub
 
 ---
 
@@ -36,43 +58,51 @@ User-Management-System
 │   └── user.js
 │
 ├── views
+│   ├── register.ejs
+│   ├── login.ejs
 │   ├── index.ejs
 │   ├── read.ejs
 │   └── edit.ejs
 │
 ├── public
-│   └── stylesheets
-│       └── style.css
 │
 ├── index.js
 ├── package.json
 ├── package-lock.json
-└── .gitignore
+├── .gitignore
+└── README.md
 ```
 
 ---
 
 ## ⚙️ Installation
 
-Clone the repository:
+Clone the repository
 
 ```
 git clone https://github.com/yashuk23/User-Management-System.git
 ```
 
-Move into the project directory:
+Move into the project directory
 
 ```
 cd User-Management-System
 ```
 
-Install dependencies:
+Install dependencies
 
 ```
 npm install
 ```
 
-Run the application:
+Create `.env` file
+
+```
+MONGO_URI=your_mongodb_atlas_connection
+JWT_SECRET=your_secret_key
+```
+
+Run the application
 
 ```
 node index.js
@@ -82,16 +112,18 @@ node index.js
 
 ## 🌐 Usage
 
-Open your browser and visit:
+Open your browser and visit
 
 ```
-http://localhost:3000
+http://localhost:8080
 ```
 
 You can now:
 
-* Add new users
-* View user list
+* Register a new account
+* Login securely
+* Create users
+* View users
 * Edit user information
 * Delete users
 
@@ -99,10 +131,11 @@ You can now:
 
 ## 📸 Future Improvements
 
-* Add authentication system
-* Add validation for forms
-* Improve UI design
-* Add REST API support
+* Profile image upload using Multer
+* Form validation
+* Pagination for user list
+* Role-based access control
+* REST API support
 
 ---
 
@@ -110,5 +143,5 @@ You can now:
 
 **Yash Kanawade**
 
-GitHub:
+GitHub
 https://github.com/yashuk23
